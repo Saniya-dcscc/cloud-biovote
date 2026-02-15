@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cloud BioVote – AMU University</title>
+</head>
+<body>
+
+<h1>AMU University</h1>
+<h2>Cloud BioVote System</h2>
+
+<!-- LOGIN SECTION -->
+<div id="loginSection">
+    <h3>Student Login</h3>
+    UID:
+    <input type="number" id="uid" placeholder="Enter UID">
+    <br><br>
+    <button onclick="login()">Login</button>
+</div>
+
+<!-- BIOMETRIC SECTION -->
+<div id="bioSection" style="display:none;">
+    <h3>Biometric Verification</h3>
+    <p>Verify using Fingerprint or Face ID</p>
+    <button onclick="biometricAuth()">Verify Biometric</button>
+</div>
+
+<!-- VOTING SECTION -->
+<div id="voteSection" style="display:none;">
+    <h3>Vote (One Student – One Vote)</h3>
+
+    <button id="btnA" onclick="vote('A')">Vote for Conrad</button>
+    <br><br>
+    <button id="btnB" onclick="vote('B')">Vote for Jeremiah</button>
+
+    <p id="msg" style="font-weight:bold;"></p>
+</div>
+
+<script>
+    let hasVoted = false;
+
+    function login() {
+        const uid = Number(document.getElementById("uid").value);
+
+        const startUID = 111723043001;
+        const endUID = 111723043050;
+
+        if (uid >= startUID && uid <= endUID) {
+            alert("UID verified successfully");
+            document.getElementById("loginSection").style.display = "none";
+            document.getElementById("bioSection").style.display = "block";
+        } else {
+            alert("Invalid UID! Access denied.");
+        }
+    }
+
+    async function biometricAuth() {
+        if (!window.PublicKeyCredential) {
+            alert("Biometric authentication not supported on this device");
+            return;
+        }
+
+        try {
+            await navigator.credentials.get({
+                publicKey: {
+                    challenge: new Uint8Array(32),
+                    timeout: 60000,
+                    userVerification: "required"
+                }
+            });
+
+            alert("Biometric verification successful (Fingerprint / Face ID)");
+            document.getElementById("bioSection").style.display = "none";
+            document.getElementById("voteSection").style.display = "block";
+
+        } catch (error) {
+            alert("Biometric verification failed or cancelled");
+        }
+    }
+
+    function vote(candidate) {
+        if (hasVoted) {
+            alert("You have already voted!");
+            return;
+        }
+
+        if (candidate === 'A') {
+            document.getElementById("msg").innerText =
+                "Vote cast successfully for Conrad";
+        } else {
+            document.getElementById("msg").innerText =
+                "Vote cast successfully for Jeremiah";
+        }
+
+        hasVoted = true;
+        document.getElementById("btnA").disabled = true;
+        document.getElementById("btnB").disabled = true;
+    }
+</script>
+
+</body>
+</html>
