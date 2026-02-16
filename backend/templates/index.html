@@ -1,101 +1,278 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Cloud BioVote – AMU University</title>
+<meta charset="UTF-8">
+<title>Cloud BioVote – AMU University</title>
+
+<style>
+
+/* -------------------- BODY -------------------- */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #ffdde1, #ee9ca7);
+}
+
+/* -------------------- MAIN CONTAINER -------------------- */
+.container {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    width: 95%;
+    max-width: 1200px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(0,0,0,0.2);
+}
+
+/* -------------------- LOGIN ROW -------------------- */
+.login-row {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+/* -------------------- LOGIN BOX -------------------- */
+.login-box {
+    width: 45%;
+    min-width: 280px;
+    padding: 20px;
+    border-radius: 15px;
+    background: #ffe4ec;
+}
+
+input {
+    padding: 10px;
+    width: 80%;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-top: 10px;
+}
+
+button {
+    padding: 8px 15px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+    background: #ff4d6d;
+    color: white;
+    font-weight: bold;
+}
+
+button:hover {
+    opacity: 0.8;
+}
+
+/* -------------------- DASHBOARD -------------------- */
+#dashboard {
+    display: none;
+    margin-top: 20px;
+}
+
+.candidate-container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.candidate-card {
+    background: #ffe4ec;
+    padding: 15px;
+    border-radius: 15px;
+    width: 180px;
+    margin: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.candidate-card img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #ddd;
+}
+
+.vote-btn {
+    background: #ff4d6d;
+}
+
+#message {
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+</style>
 </head>
+
 <body>
 
-<h1>AMU University</h1>
+<div class="container">
+
 <h2>Cloud BioVote System</h2>
 
-<!-- LOGIN SECTION -->
-<div id="loginSection">
-    <h3>Student Login</h3>
-    UID:
-    <input type="number" id="uid" placeholder="Enter UID">
-    <br><br>
-    <button onclick="login()">Login</button>
+<!-- ================= LOGIN SECTION ================= -->
+<div class="login-row" id="loginSection">
+
+    <!-- STUDENT LOGIN -->
+    <div class="login-box">
+        <h3>🎓 Student Login</h3>
+        <input type="number" id="uid" placeholder="Enter UID">
+        <br>
+        <button onclick="studentLogin()">Login</button>
+    </div>
+
+    <!-- FACULTY LOGIN -->
+    <div class="login-box">
+        <h3>📚 Faculty Login</h3>
+        <input type="text" id="facultyUser" placeholder="User ID">
+        <input type="password" id="facultyPass" placeholder="Password">
+        <br>
+        <button onclick="facultyLogin()">Login</button>
+    </div>
+
 </div>
 
-<!-- BIOMETRIC SECTION -->
+<!-- ================= BIOMETRIC SECTION ================= -->
 <div id="bioSection" style="display:none;">
-    <h3>Biometric Verification</h3>
-    <p>Verify using Fingerprint or Face ID</p>
+    <h3>Verify Fingerprint / Face ID</h3>
     <button onclick="biometricAuth()">Verify Biometric</button>
 </div>
 
-<!-- VOTING SECTION -->
-<div id="voteSection" style="display:none;">
-    <h3>Vote (One Student – One Vote)</h3>
+<!-- ================= DASHBOARD SECTION ================= -->
+<div id="dashboard">
+    <h2>Election Dashboard</h2>
 
-    <button id="btnA" onclick="vote('A')">Vote for Conrad</button>
-    <br><br>
-    <button id="btnB" onclick="vote('B')">Vote for Jeremiah</button>
+    <div class="candidate-container">
 
-    <p id="msg" style="font-weight:bold;"></p>
+        <div class="candidate-card">
+            <img src="https://via.placeholder.com/120">
+            <h4>Conrad Fisher</h4>
+            <button class="vote-btn" onclick="vote('Conrad Fisher')">Vote</button>
+        </div>
+
+        <div class="candidate-card">
+            <img src="https://via.placeholder.com/120">
+            <h4>Jeremiah</h4>
+            <button class="vote-btn" onclick="vote('Jeremiah')">Vote</button>
+        </div>
+
+        <div class="candidate-card">
+            <img src="https://via.placeholder.com/120">
+            <h4>Isabel Conklin</h4>
+            <button class="vote-btn" onclick="vote('Isabel Conklin')">Vote</button>
+        </div>
+
+        <div class="candidate-card">
+            <img src="https://via.placeholder.com/120">
+            <h4>Steven</h4>
+            <button class="vote-btn" onclick="vote('Steven')">Vote</button>
+        </div>
+
+        <div class="candidate-card">
+            <img src="https://via.placeholder.com/120">
+            <h4>Taylor</h4>
+            <button class="vote-btn" onclick="vote('Taylor')">Vote</button>
+        </div>
+
+    </div>
+
+    <div id="message"></div>
+</div>
+
 </div>
 
 <script>
-    let hasVoted = false;
 
-    function login() {
-        const uid = Number(document.getElementById("uid").value);
+let hasVoted = false;
+let userType = "";
 
-        const startUID = 111723043001;
-        const endUID = 111723043050;
+/* ================= STUDENT LOGIN ================= */
+function studentLogin() {
+    const uid = document.getElementById("uid").value;
 
-        if (uid >= startUID && uid <= endUID) {
-            alert("UID verified successfully");
-            document.getElementById("loginSection").style.display = "none";
-            document.getElementById("bioSection").style.display = "block";
+    if(uid.length > 0){
+        userType = "student";
+        document.getElementById("loginSection").style.display="none";
+        document.getElementById("bioSection").style.display="block";
+    } else {
+        alert("Enter UID");
+    }
+}
+
+/* ================= FACULTY LOGIN ================= */
+function facultyLogin() {
+
+    const facultyAccounts = {
+        "sage456": "sage123",
+        "jett678": "jett123",
+        "Phoenix890": "password123",
+        "Sova": "sova123"
+    };
+
+    const user = document.getElementById("facultyUser").value;
+    const pass = document.getElementById("facultyPass").value;
+
+    if(facultyAccounts[user] && facultyAccounts[user] === pass){
+        userType = "faculty";
+        document.getElementById("loginSection").style.display="none";
+        document.getElementById("bioSection").style.display="block";
+    } else {
+        alert("Invalid Faculty Credentials");
+    }
+}
+
+/* ================= BIOMETRIC ================= */
+async function biometricAuth(){
+
+    if (!window.PublicKeyCredential) {
+        alert("Biometric not supported");
+        return;
+    }
+
+    try{
+        await navigator.credentials.get({
+            publicKey:{
+                challenge:new Uint8Array(32),
+                userVerification:"required"
+            }
+        });
+
+        document.getElementById("bioSection").style.display="none";
+
+        if(userType === "student"){
+            document.getElementById("dashboard").style.display="block";
         } else {
-            alert("Invalid UID! Access denied.");
+            alert("Faculty Login Successful!");
         }
+
+    }catch(error){
+        alert("Biometric failed or cancelled");
+    }
+}
+
+/* ================= VOTE ================= */
+function vote(name){
+
+    if(hasVoted){
+        alert("You have already voted!");
+        return;
     }
 
-    async function biometricAuth() {
-        if (!window.PublicKeyCredential) {
-            alert("Biometric authentication not supported on this device");
-            return;
-        }
+    hasVoted = true;
 
-        try {
-            await navigator.credentials.get({
-                publicKey: {
-                    challenge: new Uint8Array(32),
-                    timeout: 60000,
-                    userVerification: "required"
-                }
-            });
+    document.querySelectorAll(".vote-btn").forEach(btn=>{
+        btn.disabled = true;
+    });
 
-            alert("Biometric verification successful (Fingerprint / Face ID)");
-            document.getElementById("bioSection").style.display = "none";
-            document.getElementById("voteSection").style.display = "block";
+    document.getElementById("message").innerText =
+        "Vote successfully cast for " + name;
+}
 
-        } catch (error) {
-            alert("Biometric verification failed or cancelled");
-        }
-    }
-
-    function vote(candidate) {
-        if (hasVoted) {
-            alert("You have already voted!");
-            return;
-        }
-
-        if (candidate === 'A') {
-            document.getElementById("msg").innerText =
-                "Vote cast successfully for Conrad";
-        } else {
-            document.getElementById("msg").innerText =
-                "Vote cast successfully for Jeremiah";
-        }
-
-        hasVoted = true;
-        document.getElementById("btnA").disabled = true;
-        document.getElementById("btnB").disabled = true;
-    }
 </script>
 
 </body>
