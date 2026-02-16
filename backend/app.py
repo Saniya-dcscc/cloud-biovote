@@ -1,83 +1,78 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 
-# ---------------------------------
-# Temporary Vote Storage (Demo)
-# ---------------------------------
+# Temporary storage (for testing only)
+users = {}
 
-votes = {}
+# ✅ Valid UID Ranges
+valid_ranges = [
+    (111723043001, 111723043050),
+    (111723044001, 111723044050),
+    (111723045001, 111723045050),
+    (111723046001, 111723046050),
+    (111723047001, 111723047050),
+]
 
-results = {
-    "Conrad Fisher": 0,
-    "Jeremiah": 0,
-    "Isabel Conklin": 0,
-    "Steven": 0,
-    "Taylor": 0
-}
 
-# ---------------------------------
-# Multiple Faculty Accounts
-# ---------------------------------
+def is_valid_uid(uid):
+    try:
+        uid_number = int(uid)
+    except:
+        return False
 
-faculty_accounts = {
-    "sage456": "sage123",
-    "jett678": "jett123",
-    "Phoenix890": "password123",
-    "Sova": "sova123"
-}
+    for start, end in valid_ranges:
+        if start <= uid_number <= end:
+            return True
+    return False
 
-# ---------------------------------
-# Student Home
-# ---------------------------------
 
 @app.route("/")
 def home():
     return render_template("index.html")
 
-# ---------------------------------
-# Vote Submission
-# ---------------------------------
 
-@app.route("/vote", methods=["POST"])
-def vote():
-    uid = request.form["uid"]
-    candidate = request.form["candidate"]
-
-    if uid in votes:
-        return "You have already voted!"
-
-    votes[uid] = candidate
-    results[candidate] += 1
-
-    return "Vote Successfully Cast!"
-
-# ---------------------------------
-# Faculty Login
-# ---------------------------------
-
-@app.route("/faculty", methods=["GET", "POST"])
-def faculty():
+@app.route("/register", methods=["GET", "POST"])
+def register():
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+        uid = request.form.get("uid")
+        password = request.form.get("password")
 
-        # Check if username exists AND password matches
-        if username in faculty_accounts and faculty_accounts[username] == password:
-            return render_template(
-                "dashboard.html",
-                results=results,
-                votes=votes,
-                faculty=username
-            )
+        # ✅ Check UID format & range
+        if not is_valid_uid(uid):
+            return "Invalid UID. Not in allowed student range."
+
+        # ✅ Check if already registered
+        if uid in users:
+            return "UID already registered."
+
+        # Store user
+        users[uid] = password
+
+        return redirect(url_for("login"))
+
+    return render_template("register.html")
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        uid = request.form.get("uid")
+        password = request.form.get("password")
+
+        if uid in users and users[uid] == password:
+            return redirect(url_for("dashboard"))
         else:
-            return "Invalid Credentials"
+            return "Invalid UID or Password."
 
-    return render_template("faculty_login.html")
+    return render_template("index.html")
 
 
-import os
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html")
 
+
+# For Render deployment
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
-
+    app.run(host="0.0.0.0", port=10000)
