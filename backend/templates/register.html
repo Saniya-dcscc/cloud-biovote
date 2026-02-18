@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cloud BioVote - Register</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #1e3c72, #2a5298);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .box {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      width: 300px;
+      text-align: center;
+    }
+
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #2a5298;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1e3c72;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>Register</h2>
+
+  <input type="text" id="uid" placeholder="Enter UID" required>
+  <input type="password" id="credential" placeholder="Enter Credential" required>
+
+  <button onclick="register()">Register</button>
+
+  <p id="message"></p>
+</div>
+
+<script>
+  function register() {
+    const uid = document.getElementById("uid").value;
+    const credential = document.getElementById("credential").value;
+
+    if (!uid || !credential) {
+      document.getElementById("message").innerText = "All fields required!";
+      return;
+    }
+
+    // Save user in localStorage
+    const user = {
+      uid: uid,
+      credential: credential
+    };
+
+    localStorage.setItem("cloudUser_" + uid, JSON.stringify(user));
+
+    document.getElementById("message").innerText = "Registered Successfully!";
+
+    setTimeout(() => {
+      window.location.href = "login.html";
+    }, 1500);
+  }
+</script>
+
+</body>
+</html>

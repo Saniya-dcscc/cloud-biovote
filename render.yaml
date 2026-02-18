@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: cloud-biovote
+    env: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: gunicorn backend.app:app
